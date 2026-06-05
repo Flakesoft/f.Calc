@@ -62,24 +62,18 @@ Not included:
 - Smooth, subtle animations
 - Clean typography
 - Comfortable touch targets
-- Dark mode first (AMOLED-friendly)
-- “Cute premium utility” feel
 
 ---
 
 ## 🚀 Goal
 
-To create a calculator that feels:
-
-fast enough to forget you're using it  
-and beautiful enough that you notice it anyway
+To create a calculator that feels fast enough to forget you're using it and beautiful enough that you notice it anyway.
 
 ---
 
 ## 🧩 Part of Flake
 
-f.Calc is part of the Flake ecosystem of small, focused utility apps.
-
+f.Calc is part of the Flake ecosystem of FOSS apps for everyday use, that respect your freedoms.
 ---
 
 ## 📦 Status
