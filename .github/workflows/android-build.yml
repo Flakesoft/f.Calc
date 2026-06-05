@@ -1,59 +1,46 @@
-name: Android CI Build
+name: Manual Release
 
 on:
-  push:
-    branches:
-      - main
-      - master
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version (e.g. v1.0.0)"
+        required: true
+        type: string
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Check commit message for [build]
-        id: check
-        run: |
-          MESSAGE=$(git log -1 --pretty=%B)
-          echo "Commit message: $MESSAGE"
-
-          if echo "$MESSAGE" | grep -q "\[build\]"; then
-            echo "BUILD=true" >> $GITHUB_ENV
-          else
-            echo "BUILD=false" >> $GITHUB_ENV
-          fi
 
       - name: Set up Java
-        if: env.BUILD == 'true'
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: "temurin"
+          java-version: "17"
 
       - name: Set up Android SDK
-        if: env.BUILD == 'true'
         uses: android-actions/setup-android@v3
 
-      - name: Set up Flutter (if needed later / hybrid setups)
-        if: env.BUILD == 'true'
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
+      - name: Grant Gradle permission
+        run: chmod +x gradlew
 
-      - name: Build Debug/Release APK
-        if: env.BUILD == 'true'
+      - name: Build Release APK
+        run: ./gradlew assembleRelease
+
+      - name: Prepare APK
         run: |
-          chmod +x gradlew
-          ./gradlew assembleRelease
+          mkdir -p release
+          cp app/build/outputs/apk/release/*.apk release/f-calc-${{ inputs.version }}.apk
 
-      - name: Upload APK artifact
-        if: env.BUILD == 'true'
-        uses: actions/upload-artifact@v4
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: f-calc-apk
-          path: app/build/outputs/apk/release/*.apk
+          tag_name: ${{ inputs.version }}
+          name: f.Calc ${{ inputs.version }}
+          files: release/*.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
