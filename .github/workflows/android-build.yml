@@ -1,0 +1,59 @@
+name: Android CI Build
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check commit message for [build]
+        id: check
+        run: |
+          MESSAGE=$(git log -1 --pretty=%B)
+          echo "Commit message: $MESSAGE"
+
+          if echo "$MESSAGE" | grep -q "\[build\]"; then
+            echo "BUILD=true" >> $GITHUB_ENV
+          else
+            echo "BUILD=false" >> $GITHUB_ENV
+          fi
+
+      - name: Set up Java
+        if: env.BUILD == 'true'
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Android SDK
+        if: env.BUILD == 'true'
+        uses: android-actions/setup-android@v3
+
+      - name: Set up Flutter (if needed later / hybrid setups)
+        if: env.BUILD == 'true'
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Build Debug/Release APK
+        if: env.BUILD == 'true'
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease
+
+      - name: Upload APK artifact
+        if: env.BUILD == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: f-calc-apk
+          path: app/build/outputs/apk/release/*.apk
