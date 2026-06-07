@@ -31,11 +31,11 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun CalculatorScreen(
-    viewModel: CalculatorViewModel = viewModel()
+    calculatorViewModel: CalculatorViewModel = viewModel()
 ) {
     val display by androidx.compose.runtime.remember {
         androidx.compose.runtime.derivedStateOf {
-            viewModel.display
+            calculatorViewModel.display
         }
     }
 
