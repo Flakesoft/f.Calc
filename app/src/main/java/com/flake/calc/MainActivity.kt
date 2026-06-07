@@ -30,14 +30,11 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun CalculatorScreen(
-    calculatorViewModel: CalculatorViewModel = viewModel()
-) {
-    val display by androidx.compose.runtime.remember {
-        androidx.compose.runtime.derivedStateOf {
-            calculatorViewModel.display
-        }
-    }
+fun CalculatorScreen() {
+
+    val calculatorViewModel: CalculatorViewModel = viewModel()
+
+    val display = calculatorViewModel.display
 
     val buttons = listOf(
         "7", "8", "9", "/",
@@ -55,7 +52,6 @@ fun CalculatorScreen(
                 .padding(20.dp)
         ) {
 
-            // Display
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -70,7 +66,6 @@ fun CalculatorScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Buttons grid
             LazyVerticalGrid(
                 columns = GridCells.Fixed(4),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -81,7 +76,7 @@ fun CalculatorScreen(
 
                     ElevatedButton(
                         onClick = {
-                            viewModel.onButtonClick(button)
+                            calculatorViewModel.onButtonClick(button)
                         },
                         modifier = Modifier
                             .fillMaxWidth()
