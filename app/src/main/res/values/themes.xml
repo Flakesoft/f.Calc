@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.FCalc" parent="Theme.Material3.DayNight.NoActionBar">
+
+        <!-- osnovni background -->
+        <item name="android:windowBackground">@android:color/black</item>
+
+    </style>
+
+</resources>
