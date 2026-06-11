@@ -1,6 +1,5 @@
 package com.flake.calc.ui.screen
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -12,7 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -33,84 +32,106 @@ fun CalculatorScreen() {
     )
 
     Surface(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
     ) {
 
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
 
-            // TOP 35%
+            // TOP DISPLAY AREA (35%)
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(0.35f)
-                    .padding(horizontal = 20.dp, vertical = 16.dp)
+                    .statusBarsPadding()
+                    .padding(horizontal = 20.dp, vertical = 12.dp)
             ) {
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Start
-                ) {
-
-                    FilledIconButton(
-                        onClick = { },
-                        modifier = Modifier.size(52.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.Menu,
-                            contentDescription = "Menu"
+                // Hamburger
+                FilledIconButton(
+                    onClick = {
+                        // TODO: history/menu
+                    },
+                    modifier = Modifier.size(50.dp),
+                    colors = IconButtonDefaults.filledIconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.primary.copy(
+                            alpha = 0.08f
                         )
-                    }
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Menu,
+                        contentDescription = "Menu"
+                    )
                 }
 
                 Spacer(modifier = Modifier.weight(1f))
 
+                // Display
                 Column(
-                    horizontalAlignment = Alignment.End,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.End
                 ) {
 
+                    // Main expression
                     Text(
                         text = display,
-                        fontSize = 42.sp,
+                        fontSize = 44.sp,
                         maxLines = 1
                     )
 
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    // Live result (placeholder)
                     Text(
                         text = "0",
-                        fontSize = 22.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        fontSize = 20.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(
+                            alpha = 0.5f
+                        )
                     )
                 }
             }
 
-            // BOTTOM 65%
-            Box(
+            // KEYBOARD AREA (65%)
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(4),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(0.65f)
+                    .navigationBarsPadding()
+                    .padding(
+                        start = 16.dp,
+                        end = 16.dp,
+                        top = 8.dp,
+                        bottom = 0.dp
+                    )
             ) {
 
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(4),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 16.dp)
-                ) {
+                items(buttons) { button ->
 
-                    items(buttons) { button ->
+                    Surface(
+                        onClick = {
+                            calculatorViewModel.onButtonClick(button)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(1f),
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.primary.copy(
+                            alpha = 0.08f
+                        ),
+                        tonalElevation = 0.dp,
+                        shadowElevation = 0.dp
+                    ) {
 
-                        Button(
-                            onClick = {
-                                calculatorViewModel.onButtonClick(button)
-                            },
-                            shape = CircleShape,
-                            modifier = Modifier
-                                .aspectRatio(1f)
-                                .fillMaxWidth()
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
                         ) {
                             Text(
                                 text = button,
