@@ -40,7 +40,9 @@ fun CalculatorScreen() {
             modifier = Modifier.fillMaxSize()
         ) {
 
-            // TOP DISPLAY AREA (35%)
+            // =========================
+            // TOP AREA (35%)
+            // =========================
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -52,13 +54,11 @@ fun CalculatorScreen() {
                 // Hamburger
                 FilledIconButton(
                     onClick = {
-                        // TODO: history/menu
+                        // TODO: history drawer
                     },
-                    modifier = Modifier.size(50.dp),
+                    modifier = Modifier.size(52.dp),
                     colors = IconButtonDefaults.filledIconButtonColors(
-                        containerColor = MaterialTheme.colorScheme.primary.copy(
-                            alpha = 0.08f
-                        )
+                        containerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f)
                     )
                 ) {
                     Icon(
@@ -69,74 +69,82 @@ fun CalculatorScreen() {
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                // Display
+                // DISPLAY AREA
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.End
                 ) {
 
-                    // Main expression
                     Text(
                         text = display,
-                        fontSize = 44.sp,
-                        maxLines = 1
+                        fontSize = 46.sp,
+                        maxLines = 1,
+                        color = MaterialTheme.colorScheme.onBackground
                     )
 
                     Spacer(modifier = Modifier.height(4.dp))
 
-                    // Live result (placeholder)
-                    Text(
-                        text = "0",
-                        fontSize = 20.sp,
-                        color = MaterialTheme.colorScheme.onSurface.copy(
-                            alpha = 0.5f
+                    // LIVE RESULT (placeholder for now)
+                    val liveResult = "" // <-- kasnije iz ViewModel-a
+
+                    if (liveResult.isNotBlank()) {
+                        Text(
+                            text = liveResult,
+                            fontSize = 20.sp,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                         )
-                    )
+                    }
                 }
             }
 
-            // KEYBOARD AREA (65%)
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(4),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            // =========================
+            // KEYBOARD (65%) - FIXED TO BOTTOM
+            // =========================
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(0.65f)
-                    .navigationBarsPadding()
-                    .padding(
-                        start = 16.dp,
-                        end = 16.dp,
-                        top = 8.dp,
-                        bottom = 0.dp
-                    )
             ) {
 
-                items(buttons) { button ->
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(4),
+                    verticalArrangement = Arrangement.spacedBy(14.dp),
+                    horizontalArrangement = Arrangement.spacedBy(14.dp),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(
+                            start = 16.dp,
+                            end = 16.dp,
+                            top = 8.dp,
+                            bottom = 16.dp
+                        )
+                ) {
 
-                    Surface(
-                        onClick = {
-                            calculatorViewModel.onButtonClick(button)
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(1f),
-                        shape = CircleShape,
-                        color = MaterialTheme.colorScheme.primary.copy(
-                            alpha = 0.08f
-                        ),
-                        tonalElevation = 0.dp,
-                        shadowElevation = 0.dp
-                    ) {
+                    items(buttons) { button ->
 
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
+                        Surface(
+                            onClick = {
+                                calculatorViewModel.onButtonClick(button)
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .aspectRatio(1f),
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f),
+                            tonalElevation = 0.dp,
+                            shadowElevation = 0.dp
                         ) {
-                            Text(
-                                text = button,
-                                fontSize = 26.sp
-                            )
+
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = button,
+                                    fontSize = 28.sp,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
                         }
                     }
                 }
