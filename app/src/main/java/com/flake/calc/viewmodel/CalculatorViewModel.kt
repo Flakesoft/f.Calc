@@ -4,21 +4,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.flake.calc.domain.calculator.CalculatorEngine
+import com.flake.calc.domain.calculator.ExpressionEvaluator
 
 class CalculatorViewModel : ViewModel() {
 
-    private val engine = CalculatorEngine()
+    private val evaluator = ExpressionEvaluator()
 
-    // glavni input (ono što korisnik kuca)
     var display by mutableStateOf("0")
         private set
 
-    // live preview (rezultat u real-time)
     var previewResult by mutableStateOf("")
         private set
 
-    // = poslednji finalni rezultat (za istoriju kasnije)
     var lastResult by mutableStateOf("")
         private set
 
@@ -38,7 +35,7 @@ class CalculatorViewModel : ViewModel() {
     }
 
     // -------------------------
-    // INPUT LOGIC
+    // INPUT
     // -------------------------
 
     private fun append(value: String) {
@@ -54,10 +51,9 @@ class CalculatorViewModel : ViewModel() {
 
         if (display.length <= 1) {
             display = "0"
-            return
+        } else {
+            display = display.dropLast(1)
         }
-
-        display = display.dropLast(1)
     }
 
     private fun clear() {
@@ -67,12 +63,12 @@ class CalculatorViewModel : ViewModel() {
     }
 
     // -------------------------
-    // CALCULATION
+    // EVALUATION
     // -------------------------
 
     private fun evaluateFinal() {
 
-        val result = engine.evaluate(display)
+        val result = evaluator.evaluate(display)
 
         display = result
         lastResult = result
@@ -84,10 +80,10 @@ class CalculatorViewModel : ViewModel() {
     // -------------------------
 
     private fun updatePreview() {
-        previewResult = try {
-            val result = engine.evaluate(display)
 
-            // ako engine vrati error → ne pokazuj ništa
+        previewResult = try {
+            val result = evaluator.evaluate(display)
+
             if (result == "Error") "" else result
 
         } catch (e: Exception) {
