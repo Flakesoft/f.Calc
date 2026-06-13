@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
@@ -20,10 +21,10 @@ import com.flake.calc.viewmodel.CalculatorViewModel
 @Composable
 fun CalculatorScreen() {
 
-    val calculatorViewModel: CalculatorViewModel = viewModel()
+    val vm: CalculatorViewModel = viewModel()
 
-    val display = calculatorViewModel.display
-    val preview = calculatorViewModel.previewResult
+    val display = vm.display
+    val preview = vm.previewResult
 
     val buttons = listOf(
         "C", "⌫", "(", ")",
@@ -43,7 +44,7 @@ fun CalculatorScreen() {
         ) {
 
             // =========================
-            // TOP AREA (35%)
+            // TOP (35%)
             // =========================
             Column(
                 modifier = Modifier
@@ -53,96 +54,88 @@ fun CalculatorScreen() {
                     .padding(horizontal = 20.dp, vertical = 12.dp)
             ) {
 
-                // MENU BUTTON
                 FilledIconButton(
-                    onClick = { /* history later */ },
-                    modifier = Modifier.size(50.dp),
+                    onClick = { },
+                    modifier = Modifier.size(52.dp),
                     colors = IconButtonDefaults.filledIconButtonColors(
-                        containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
+                        containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.10f)
                     )
                 ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Menu,
-                        contentDescription = "Menu"
-                    )
+                    Icon(Icons.Rounded.Menu, contentDescription = null)
                 }
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                // DISPLAY AREA
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.End
                 ) {
 
-                    // MAIN EXPRESSION
                     Text(
                         text = display,
-                        fontSize = 44.sp,
+                        fontSize = when {
+                            display.length < 10 -> 48.sp
+                            display.length < 16 -> 40.sp
+                            else -> 32.sp
+                        },
                         maxLines = 1,
-                        softWrap = false,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Clip
                     )
 
                     Spacer(modifier = Modifier.height(6.dp))
 
-                    // LIVE PREVIEW
-                    if (preview.isNotBlank() && preview != "0") {
-
-                        Text(
-                            text = preview,
-                            fontSize = 20.sp,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                            maxLines = 1,
-                            softWrap = false,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
+                    Text(
+                        text = preview,
+                        fontSize = 22.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
+                        maxLines = 1
+                    )
                 }
             }
 
             // =========================
-            // KEYBOARD (65%)
+            // KEYBOARD (65%) - PINNED FEEL
             // =========================
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(4),
-                verticalArrangement = Arrangement.spacedBy(14.dp),
-                horizontalArrangement = Arrangement.spacedBy(14.dp),
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(0.65f)
-                    .navigationBarsPadding()
-                    .padding(
-                        start = 16.dp,
-                        end = 16.dp,
-                        bottom = 16.dp
-                    )
             ) {
 
-                items(buttons) { button ->
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(4),
+                    verticalArrangement = Arrangement.spacedBy(18.dp),
+                    horizontalArrangement = Arrangement.spacedBy(18.dp),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(
+                            start = 14.dp,
+                            end = 14.dp,
+                            bottom = 18.dp
+                        )
+                ) {
 
-                    Surface(
-                        onClick = {
-                            calculatorViewModel.onButtonClick(button)
-                        },
-                        shape = CircleShape,
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.06f),
-                        tonalElevation = 0.dp,
-                        shadowElevation = 0.dp,
-                        modifier = Modifier
-                            .aspectRatio(1f)
-                            .fillMaxWidth()
-                    ) {
+                    items(buttons) { button ->
 
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier.fillMaxSize()
+                        Surface(
+                            onClick = { vm.onButtonClick(button) },
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.14f),
+                            modifier = Modifier
+                                .aspectRatio(1f)
+                                .fillMaxWidth()
                         ) {
 
-                            Text(
-                                text = button,
-                                fontSize = 28.sp
-                            )
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier.fillMaxSize()
+                            ) {
+
+                                Text(
+                                    text = button,
+                                    fontSize = 32.sp
+                                )
+                            }
                         }
                     }
                 }
