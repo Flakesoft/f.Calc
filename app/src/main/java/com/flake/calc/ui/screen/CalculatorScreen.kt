@@ -1,4 +1,3 @@
-
 package com.flake.calc.ui.screen
 
 import androidx.compose.foundation.layout.*
@@ -12,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -23,7 +23,7 @@ fun CalculatorScreen() {
     val calculatorViewModel: CalculatorViewModel = viewModel()
 
     val display = calculatorViewModel.display
-    val liveResult = calculatorViewModel.previewResult // <- mora postojati u VM
+    val preview = calculatorViewModel.previewResult
 
     val buttons = listOf(
         "C", "⌫", "(", ")",
@@ -42,9 +42,9 @@ fun CalculatorScreen() {
             modifier = Modifier.fillMaxSize()
         ) {
 
-            // =======================
+            // =========================
             // TOP AREA (35%)
-            // =======================
+            // =========================
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -55,12 +55,10 @@ fun CalculatorScreen() {
 
                 // MENU BUTTON
                 FilledIconButton(
-                    onClick = {
-                        // TODO: history drawer
-                    },
-                    modifier = Modifier.size(54.dp),
+                    onClick = { /* history later */ },
+                    modifier = Modifier.size(50.dp),
                     colors = IconButtonDefaults.filledIconButtonColors(
-                        containerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)
+                        containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
                     )
                 ) {
                     Icon(
@@ -71,46 +69,52 @@ fun CalculatorScreen() {
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                // DISPLAY
+                // DISPLAY AREA
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.End
                 ) {
 
+                    // MAIN EXPRESSION
                     Text(
                         text = display,
-                        fontSize = 48.sp,
+                        fontSize = 44.sp,
                         maxLines = 1,
-                        color = MaterialTheme.colorScheme.onBackground
+                        softWrap = false,
+                        overflow = TextOverflow.Ellipsis
                     )
 
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(6.dp))
 
-                    if (liveResult.isNotBlank()) {
+                    // LIVE PREVIEW
+                    if (preview.isNotBlank() && preview != "0") {
+
                         Text(
-                            text = liveResult,
-                            fontSize = 22.sp,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
-                            maxLines = 1
+                            text = preview,
+                            fontSize = 20.sp,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                            maxLines = 1,
+                            softWrap = false,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }
             }
 
-            // =======================
+            // =========================
             // KEYBOARD (65%)
-            // =======================
+            // =========================
             LazyVerticalGrid(
                 columns = GridCells.Fixed(4),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp),
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(0.65f)
+                    .navigationBarsPadding()
                     .padding(
                         start = 16.dp,
                         end = 16.dp,
-                        top = 8.dp,
                         bottom = 16.dp
                     )
             ) {
@@ -121,23 +125,23 @@ fun CalculatorScreen() {
                         onClick = {
                             calculatorViewModel.onButtonClick(button)
                         },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(1f),
                         shape = CircleShape,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f),
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.06f),
                         tonalElevation = 0.dp,
-                        shadowElevation = 0.dp
+                        shadowElevation = 0.dp,
+                        modifier = Modifier
+                            .aspectRatio(1f)
+                            .fillMaxWidth()
                     ) {
 
                         Box(
                             contentAlignment = Alignment.Center,
                             modifier = Modifier.fillMaxSize()
                         ) {
+
                             Text(
                                 text = button,
-                                fontSize = 30.sp,
-                                color = MaterialTheme.colorScheme.onSurface
+                                fontSize = 28.sp
                             )
                         }
                     }
