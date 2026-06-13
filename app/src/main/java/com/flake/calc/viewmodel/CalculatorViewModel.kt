@@ -13,20 +13,28 @@ class CalculatorViewModel : ViewModel() {
     var display by mutableStateOf("0")
         private set
 
-    var previewResult by mutableStateOf("")
+    var previewResult by mutableStateOf("0")
         private set
 
-    var lastResult by mutableStateOf("")
-        private set
+    private var isErrorState = false
 
     fun onButtonClick(value: String) {
+
+        if (isErrorState) {
+            // reset iz Error state-a
+            if (value != "C") {
+                display = value
+                isErrorState = false
+            }
+        }
+
         when (value) {
 
             "C" -> clear()
 
             "⌫" -> backspace()
 
-            "=" -> evaluateFinal()
+            "=" -> calculateFinal()
 
             else -> append(value)
         }
@@ -34,17 +42,9 @@ class CalculatorViewModel : ViewModel() {
         updatePreview()
     }
 
-    // -------------------------
-    // INPUT
-    // -------------------------
-
     private fun append(value: String) {
 
-        display = if (display == "0") {
-            value
-        } else {
-            display + value
-        }
+        display = if (display == "0") value else display + value
     }
 
     private fun backspace() {
@@ -56,38 +56,35 @@ class CalculatorViewModel : ViewModel() {
         }
     }
 
-    private fun clear() {
-        display = "0"
-        previewResult = ""
-        lastResult = ""
-    }
-
-    // -------------------------
-    // EVALUATION
-    // -------------------------
-
-    private fun evaluateFinal() {
+    private fun calculateFinal() {
 
         val result = evaluator.evaluate(display)
 
-        display = result
-        lastResult = result
-        previewResult = ""
+        if (result == "Error") {
+            display = "Error"
+            previewResult = "0"
+            isErrorState = true
+        } else {
+            display = result
+            previewResult = result
+            isErrorState = false
+        }
     }
-
-    // -------------------------
-    // LIVE PREVIEW
-    // -------------------------
 
     private fun updatePreview() {
 
+        if (isErrorState) return
+
         previewResult = try {
-            val result = evaluator.evaluate(display)
-
-            if (result == "Error") "" else result
-
+            evaluator.evaluate(display)
         } catch (e: Exception) {
-            ""
+            "0"
         }
+    }
+
+    private fun clear() {
+        display = "0"
+        previewResult = "0"
+        isErrorState = false
     }
 }
