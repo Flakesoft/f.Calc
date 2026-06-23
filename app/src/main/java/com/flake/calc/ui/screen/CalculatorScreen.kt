@@ -1,11 +1,14 @@
 package com.flake.calc.ui.screen
 
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Menu
@@ -13,12 +16,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -40,11 +44,11 @@ fun CalculatorScreen() {
         ".", "0", "=", "+"
     )
 
-    // Root surface that respects system bars so the UI reaches the bottom/nav bar
+    // Root surface - only pad for status bar so we can let the keypad reach the nav bar
     Surface(
         modifier = Modifier
             .fillMaxSize()
-            .systemBarsPadding(),
+            .statusBarsPadding(),
         color = MaterialTheme.colorScheme.background
     ) {
 
@@ -53,12 +57,12 @@ fun CalculatorScreen() {
         ) {
 
             // =========================
-            // TOP (35%) - Display area
+            // TOP (30%) - Display area (slightly reduced to give more room to buttons)
             // =========================
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(0.35f)
+                    .weight(0.30f)
                     .padding(horizontal = 20.dp, vertical = 12.dp)
             ) {
 
@@ -112,30 +116,30 @@ fun CalculatorScreen() {
             }
 
             // =========================
-            // KEYBOARD (65%) - pinned to bottom with a rounded container
+            // KEYBOARD - pinned to bottom with a rounded container and ZERO bottom padding so buttons can touch nav bar
             // =========================
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(0.65f),
+                    .weight(0.70f), // give more room to buttons
                 shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
                 tonalElevation = 8.dp,
                 color = MaterialTheme.colorScheme.surface
             ) {
 
-                // Inner padding so buttons don't touch rounded corners / nav bar
+                // Inner padding: only horizontal and top; bottom = 0 so buttons can reach nav bar
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 16.dp, vertical = 18.dp)
+                        .padding(start = 14.dp, end = 14.dp, top = 18.dp, bottom = 0.dp)
                 ) {
 
                     val operators = remember { setOf("/", "*", "-", "+", "=", "(", ")") }
 
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(4),
-                        verticalArrangement = Arrangement.spacedBy(14.dp),
-                        horizontalArrangement = Arrangement.spacedBy(14.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
                         modifier = Modifier
                             .fillMaxSize()
                     ) {
@@ -156,18 +160,28 @@ fun CalculatorScreen() {
                             val contentColor = when {
                                 isEqual -> MaterialTheme.colorScheme.onPrimary
                                 isClear -> MaterialTheme.colorScheme.onErrorContainer
-                                isOperator -> MaterialTheme.colorScheme.onSurface
                                 else -> MaterialTheme.colorScheme.onSurface
                             }
 
+                            // interaction source to detect press state
+                            val interactionSource = remember { MutableInteractionSource() }
+                            val pressed by interactionSource.collectIsPressedAsState()
+
+                            // animate corner radius (squircle-ish) and scale when pressed
+                            val targetRadius: Dp = if (pressed) 12.dp else 50.dp
+                            val cornerRadius by animateDpAsState(targetValue = targetRadius)
+                            val scale by animateFloatAsState(targetValue = if (pressed) 0.985f else 1f)
+
                             Surface(
                                 onClick = { vm.onButtonClick(button) },
-                                shape = CircleShape,
+                                shape = RoundedCornerShape(cornerRadius),
                                 color = bgColor,
                                 modifier = Modifier
                                     .aspectRatio(1f)
-                                    .fillMaxWidth(),
-                                tonalElevation = if (isEqual) 6.dp else 0.dp
+                                    .fillMaxWidth()
+                                    .scale(scale),
+                                tonalElevation = if (isEqual) 6.dp else 0.dp,
+                                interactionSource = interactionSource
                             ) {
 
                                 Box(
@@ -177,7 +191,7 @@ fun CalculatorScreen() {
 
                                     Text(
                                         text = button,
-                                        fontSize = if (button.length > 1) 20.sp else 32.sp,
+                                        fontSize = if (button.length > 1) 20.sp else 36.sp, // slightly larger digits
                                         color = contentColor,
                                         fontWeight = if (isOperator || isEqual) FontWeight.Medium else FontWeight.Normal
                                     )
