@@ -10,7 +10,7 @@ f.Calc is a modern, minimal calculator built with Kotlin and Jetpack Compose, de
 
 It focuses on fast, clean, and beautiful everyday calculations without unnecessary complexity.
 
-This is part of the Flake ecosystem of small, polished utility apps.
+This is part of the Flakesoft ecosystem of apps.
 
 ---
 
@@ -71,9 +71,9 @@ To create a calculator that feels fast enough to forget you're using it and beau
 
 ---
 
-## 🧩 Part of Flake
+## 🧩 Part of Flakesoft
 
-f.Calc is part of the Flake ecosystem of FOSS apps for everyday use, that respect your freedoms.
+f.Calc is part of the Flakesoft ecosystem of FOSS apps for everyday use, that respect your freedoms.
 ---
 
 ## 📦 Status
